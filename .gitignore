@@ -1,0 +1,15 @@
+# build artifacts
+/anonymcoin
+/anonymcoin.exe
+/anonymcoin-arm
+*.test
+*.out
+
+# runtime data
+/data/
+*.dat
+fuzz_corpus/
+
+# editor
+.idea/
+.vscode/

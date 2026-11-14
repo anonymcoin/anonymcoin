@@ -1,0 +1,39 @@
+# Go build outputs
+/bin/
+/dist/
+/build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Coverage and profiling
+coverage.out
+coverage.html
+*.coverprofile
+*.prof
+*.pprof
+
+# Dependency and workspace local state
+/vendor/
+go.work
+go.work.sum
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Generated temporary files
+/tmp/
+*.tmp

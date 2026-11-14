@@ -1,0 +1,76 @@
+{
+  "data_dir": "./data",
+  "p2p": {
+    "enabled": true,
+    "listen_addr": "",
+    "port": 8611,
+    "peers": [
+      {
+        "address": "peers-onion-name-here.onion:8611",
+        "kind": "tor",
+        "cert_fingerprint": "AN00000000000000000000000000000000",
+        "falcon_fingerprint": "AN11111111111111111111111111111111"
+      },
+      {
+        "address": "203.0.113.10:8611",
+        "kind": "tcp",
+        "cert_fingerprint": "AN22222222222222222222222222222222",
+        "falcon_fingerprint": "AN33333333333333333333333333333333"
+      }
+    ],
+    "max_peers": 32,
+    "tor_socks_addr": "127.0.0.1:9050",
+    "i2p_sam_addr": "127.0.0.1:7656",
+    "no_address_gossip": true
+  },
+  "rpc": {
+    "enabled": true,
+    "listen_addr": "127.0.0.1:8612",
+    "token": "0c0f96b46e368d816a9caa060e6e17fa175218017d32fb50"
+  },
+  "mining": {
+    "enabled": false,
+    "workers": 4,
+    "payout_address": ""
+  },
+  "consensus": {
+    "name": "ANONYMCOIN",
+    "ticker": "Coin",
+    "protocol_version": 1,
+    "block_interval_sec": 1,
+    "max_parents": 8,
+    "max_block_size": 1000000,
+    "max_tx_size": 128000,
+    "max_tx_inputs": 512,
+    "max_tx_outputs": 512,
+    "max_aux_bytes": 64,
+    "dust_limit": 1000,
+    "min_relay_fee": 1000,
+    "max_money": 10000000000000,
+    "atoms_per_coin": 100000000,
+    "max_future_time_sec": 7200,
+    "vt_drift_cap": 60,
+    "mtp_window": 11,
+    "difficulty_window": 128,
+    "difficulty_max_change_n": 4,
+    "difficulty_max_change_d": 1,
+    "difficulty_min": 1,
+    "difficulty_max": 4294967296,
+    "finalized_depth": 2000,
+    "orphan_pool_size": 2048,
+    "orphan_ttl_sec": 7200,
+    "coinbase_maturity": 10,
+    "genesis_time": 1767225600,
+    "genesis_difficulty": 64,
+    "bootstrap_per_second": 5000000000,
+    "bootstrap_seconds": 63072000,
+    "seconds_per_year": 31536000,
+    "rate_base_microbp": 800000,
+    "rate_excess_microbp": 60000,
+    "rate_excess_half_life_years": 20,
+    "rate_tail_start_years": 320,
+    "rate_tail_half_life_years": 100,
+    "max_gap_seconds": 60
+  },
+  "log_level": "info"
+}
