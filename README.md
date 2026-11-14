@@ -25,7 +25,7 @@ It is not a fork of any existing implementation. It combines:
   multiple parents, parallel blocks are accepted, and every node derives the
   identical canonical order deterministically from the DAG alone.
 - **ANONYMBWT** — an original CPU-oriented proof-of-work forked in design
-  from AstroBWT (studied from its public use in Kaspa) and reimplemented from
+  from AstroBWT (studied from its public use in Dero) and reimplemented from
   zero: BLAKE2b → deterministic 64 KiB expansion → suffix-array
   Burrows-Wheeler transform → BLAKE2b. A regular CPU is a first-class miner.
 - **TIE — Time Integral Emission** — an infinite-supply monetary policy with
