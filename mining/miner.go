@@ -23,7 +23,7 @@ import (
 
 // Miner is the multi-worker CPU miner. Workers continuously assemble block
 // templates from the current DAG tips and the mempool, then search the
-// ANONYMBWT nonce space in parallel until one worker finds a solution.
+// ANONYMBWT-V3 nonce space in parallel until one worker finds a solution.
 type Miner struct {
 	dag     *blockdag.DAG
 	pool    *MemPool
@@ -37,8 +37,7 @@ type Miner struct {
 }
 
 // NewMiner builds a miner. payout is the coinbase destination public key
-// hash; workers is the number of parallel search threads (1 is enough for a
-// laptop, NumCPU saturates a machine).
+// hash; workers is the number of parallel search threads.
 func NewMiner(dag *blockdag.DAG, pool *MemPool, payout cryptography.Hash160, workers int) *Miner {
 	if workers < 1 {
 		workers = 1
@@ -49,7 +48,7 @@ func NewMiner(dag *blockdag.DAG, pool *MemPool, payout cryptography.Hash160, wor
 		payout:   payout,
 		workers:  workers,
 		stopCh:   make(chan struct{}),
-		solution: make(chan *blockdag.Block, 1),
+		solution: make(chan *blockdag.Block, 32), // Buffer aumentado para evitar contenção
 	}
 }
 
@@ -64,9 +63,7 @@ func (m *Miner) Start() {
 	}
 }
 
-// Stop terminates the workers and closes the solution channel. It is safe
-// to call Stop multiple times and safe to range over SolutionChan afterwards
-// (the channel closes after all senders have exited).
+// Stop terminates the workers and closes the solution channel.
 func (m *Miner) Stop() {
 	if m.running.Swap(false) {
 		close(m.stopCh)
@@ -78,8 +75,7 @@ func (m *Miner) Stop() {
 // SolutionChan exposes the found-block channel for the node loop.
 func (m *Miner) SolutionChan() <-chan *blockdag.Block { return m.solution }
 
-// MineN mines exactly n accepted blocks synchronously (used by tests, the
-// RPC `mine` command and the CLI). It returns on the first template failure.
+// MineN mines exactly n accepted blocks synchronously.
 func (m *Miner) MineN(n int) error {
 	for i := 0; i < n; i++ {
 		blk, err := m.MineOne()
@@ -93,12 +89,7 @@ func (m *Miner) MineN(n int) error {
 	return nil
 }
 
-// MineOne assembles a template and searches for a solution across all
-// workers, synchronously returning the first found block.
-//
-// Concurrency note (audit): every worker gets its OWN copy of the header so
-// nonce mutation never races — the historical draft shared one header
-// pointer across goroutines, which was a data race.
+// MineOne assembles a template and searches for a solution across all workers.
 func (m *Miner) MineOne() (*blockdag.Block, error) {
 	tpl := m.buildTemplate()
 	if tpl == nil {
@@ -110,7 +101,7 @@ func (m *Miner) MineOne() (*blockdag.Block, error) {
 	}
 	found := make(chan result, m.workers)
 	var wg sync.WaitGroup
-	var winner int64 // atomic worker index that found it
+	var winner int64
 	stop := make(chan struct{})
 	for wi := 0; wi < m.workers; wi++ {
 		wg.Add(1)
@@ -118,9 +109,7 @@ func (m *Miner) MineOne() (*blockdag.Block, error) {
 			defer wg.Done()
 			w := anonymbwt.AcquireWorkspace()
 			defer anonymbwt.ReleaseWorkspace(w)
-			// Private header copy per worker (no shared mutable state).
 			hdr := *tpl.Header
-			// Per-worker nonce ranges offset by golden-ratio strides.
 			nonce := uint64(wi+1) * 0x9E3779B97F4A7C15
 			for {
 				select {
@@ -180,9 +169,11 @@ func (m *Miner) workerLoop(wi int) {
 			tpl.Header.Nonce = nonce
 			d := w.Digest(tpl.Header.Encode())
 			if anonymbwt.MeetsTarget(d, target) {
+				// Correção Crítica: Envio bloqueante seguro. O bloco NUNCA é descartado.
 				select {
 				case m.solution <- tpl:
-				default:
+				case <-m.stopCh:
+					return
 				}
 				break
 			}
@@ -191,9 +182,7 @@ func (m *Miner) workerLoop(wi int) {
 	}
 }
 
-// buildTemplate assembles a block on the current tips: parents are the
-// heaviest tips (canonical order), transactions are the top mempool entries
-// by fee, and the coinbase claims the forecast emission reward plus fees.
+// buildTemplate assembles a block on the current tips.
 func (m *Miner) buildTemplate() *blockdag.Block {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	p := m.dag.Params()
@@ -220,10 +209,6 @@ func (m *Miner) buildTemplate() *blockdag.Block {
 		}
 	}
 	if feeOvf {
-		// Unreachable for validated params (fees are bounded by circulating
-		// supply); the conservative response is to claim the reward only —
-		// an over-claim would be rejected by the MaxMoney structure check
-		// and wasted mining work, an under-claim is just the miner's loss.
 		fees = 0
 	}
 	plainTxs := make([]transactions.Tx, 0, len(txs))

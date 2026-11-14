@@ -2,36 +2,23 @@
   "data_dir": "./data",
   "p2p": {
     "enabled": true,
-    "listen_addr": "",
+    "listen_addr": "0.0.0.0:8611",
     "port": 8611,
-    "peers": [
-      {
-        "address": "peers-onion-name-here.onion:8611",
-        "kind": "tor",
-        "cert_fingerprint": "AN00000000000000000000000000000000",
-        "falcon_fingerprint": "AN11111111111111111111111111111111"
-      },
-      {
-        "address": "203.0.113.10:8611",
-        "kind": "tcp",
-        "cert_fingerprint": "AN22222222222222222222222222222222",
-        "falcon_fingerprint": "AN33333333333333333333333333333333"
-      }
-    ],
+    "peers": [],
     "max_peers": 32,
     "tor_socks_addr": "127.0.0.1:9050",
     "i2p_sam_addr": "127.0.0.1:7656",
-    "no_address_gossip": true
+    "no_address_gossip": false
   },
   "rpc": {
     "enabled": true,
     "listen_addr": "127.0.0.1:8612",
-    "token": "0c0f96b46e368d816a9caa060e6e17fa175218017d32fb50"
+    "token": ""
   },
   "mining": {
-    "enabled": false,
+    "enabled": true,
     "workers": 4,
-    "payout_address": ""
+    "payout_address": "CwtE2o5a83MXDcwHGdkZpzizRRVVoW9NFH"
   },
   "consensus": {
     "name": "ANONYMCOIN",
@@ -72,5 +59,5 @@
     "rate_tail_half_life_years": 100,
     "max_gap_seconds": 60
   },
-  "log_level": "info"
+  "log_level": "debug"
 }
