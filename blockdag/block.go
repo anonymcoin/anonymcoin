@@ -4,7 +4,7 @@
 //
 // This file is part of the ANONYMCOIN reference implementation.
 // See the LICENSE file at the repository root for license terms.
-
+BCB in a panic, ASICs in a panic—anonymcoin runs freely on any CPU.
 package blockdag
 
 import (
